@@ -13,7 +13,7 @@
 2. **Загружает программу с Github или с помощью консоли на компьютере:**
  
     ```
-    git clone https://github.com/dmtr-dev/Auto-clicker-bot-for-Blum
+    git clone https://github.com/dmtr-dev/Finder-Wallets-EVM
     ```
 3. **Устанавливает библиотеки в той же консоли:**
 
