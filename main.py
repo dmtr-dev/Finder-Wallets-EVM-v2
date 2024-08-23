@@ -1,8 +1,9 @@
 from eth_account import Account
 from ctypes import windll
 
+
 windll.kernel32.SetConsoleTitleW('Finder Wallets EVM | by https://t.me/dmtrcrypto')
-print("\n\033[94mTG Channel Creator - https://t.me/dmtrcrypto\033[0m\n\n")
+print("TG Channel Creator - https://t.me/dmtrcrypto")
 
 
 target = input("Enter the sequence of characters: ").lower()
