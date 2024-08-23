@@ -1,4 +1,4 @@
-# Генерация EVM кошельков с определенной комбинацией адреса v2
+# Генерация EVM кошельков v2
 
 ## TG Channel Creator- https://t.me/dmtrcrypto [![Join our Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/dmtrcrypto)
 
