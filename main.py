@@ -3,7 +3,7 @@ from ctypes import windll
 
 
 windll.kernel32.SetConsoleTitleW('Finder Wallets EVM | by https://t.me/dmtrcrypto')
-print("TG Channel Creator - https://t.me/dmtrcrypto")
+print("TG Channel Creator - https://t.me/dmtrcrypto\n\n")
 
 
 target = input("Enter the sequence of characters: ").lower()
