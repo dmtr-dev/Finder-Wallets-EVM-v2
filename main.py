@@ -1,57 +1,52 @@
-import pyotp
-import time
-import pyperclip
+from eth_account import Account
 from ctypes import windll
-from termcolor import cprint
+import concurrent.futures
 
-file_path = 'secret_keys.txt'
-
-def read_keys_from_file(file_path):
-    keys = {}
-    account_names = set()
-    with open(file_path, 'r') as file:
-        for line in file:
-            if ':' in line:
-                account_name, secret_key = line.strip().split(':')
-                lower_account_name = account_name.lower()
-                
-                if lower_account_name in account_names:
-                    print(f"Ошибка: дублирующееся название '{account_name}'. Пожалуйста, измените его в файле.")
-                    return None
-                if lower_account_name == "exit":
-                    print(f"Ошибка: недопустимое название '{account_name}'. Пожалуйста, измените его в файле.")
-                    return None
-                
-                keys[lower_account_name] = secret_key
-                account_names.add(lower_account_name)
-    return keys
-
-keys = read_keys_from_file(file_path)
-
-if keys is None:
-    exit()
-
+target = input("Enter the sequence of characters: ").lower()
+count = int(input("Enter the number of wallets: "))
 while True:
-    account_name = input("Введите название аккаунта (или 'exit' для выхода): ").lower()
-    
-    if account_name == 'exit':
-        print("Выход из программы.")
+    position = input("Enter which side of the wallet address should contain the characters (s - start, e - end): ").lower()
+    if position in ['s', 'e']:
         break
-    
-    if account_name in keys:
-        secret_key = keys[account_name]
-        totp = pyotp.TOTP(secret_key, interval=30)
-
-        otp_code = totp.now()
-
-        remaining_time = 30 - (int(time.time()) % 30)
-
-        pyperclip.copy(otp_code)
-
-        print(f"Код для '{account_name}': {otp_code} (действителен еще {remaining_time} секунд)\n")
     else:
-        print("Такого аккаунта нет. Попробуйте снова.\n")
+        print("Invalid input. Please enter 's' for start or 'e' for end")
+
+def create_wallets(target, count, position, num_words=12):
+    Account.enable_unaudited_hdwallet_features()
+    wallets = []
+    
+    def generate_wallet():
+        global processed_wallets
+        processed_wallets = 0
+        while True:
+            processed_wallets += 1
+            account, mnemonic = Account.create_with_mnemonic(num_words=num_words)
+            if is_valid_address(account.address[2:], target, position):
+                wallets_info = f'{account.address}:{mnemonic}:{account.key.hex()}'
+                print(f"Found valid wallet: {account.address}")
+                return wallets_info
+                
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
+        futures = [executor.submit(generate_wallet) for _ in range(count)]
+        for future in concurrent.futures.as_completed(futures):
+            wallets.append(future.result())
+    
+    with open(f'wallets_{target}.txt', 'w') as file:
+        file.write("address : mnemonic : private_key\n\n")
+        for wallet in wallets:
+            file.write(wallet + '\n')
+    print(f"\nValid wallets have been written to 'wallets_{target}.txt'")
+    print(f"Addresses have been processed: {processed_wallets}")
+
+def is_valid_address(address, target, position):
+    if position == 's':
+        return address.startswith(target)
+    elif position == 'e':
+        return address.endswith(target)
+    return False
 
 if __name__ == "__main__":
     windll.kernel32.SetConsoleTitleW('Finder Wallets EVM | by https://t.me/dmtrcrypto')
-    cprint("\nTG Channel - https://t.me/dmtrcrypto\n\n", 'magenta')
+    print("\nTG Channel Creator - https://t.me/dmtrcrypto\n\n")
+    create_wallets(target, count, position)
